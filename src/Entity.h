@@ -19,11 +19,11 @@ private:
 
 public:
     std::shared_ptr<CTransform> cTransform;
-    std::shared_ptr<CShape>     CShape;
-    std::shared_ptr<CCollision> CCollision;
-    std::shared_ptr<CInput>     CInput;
-    std::shared_ptr<CScore>     CScore;
-    std::shared_ptr<CLifespan>  CLifespan;
+    std::shared_ptr<CShape>     cShape;
+    std::shared_ptr<CCollision> cCollision;
+    std::shared_ptr<CInput>     cInput;
+    std::shared_ptr<CScore>     cScore;
+    std::shared_ptr<CLifespan>  cLifespan;
 
     bool isActive() const;
     const std::string& tag() const;
