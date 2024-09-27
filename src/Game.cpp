@@ -27,26 +27,26 @@ void Game::init(const std::string& path)
         if (label == "Window") 
         {
             std::cout << "\tExtracting window configuration" << std::endl;
-            s >> m_window.W >> m_window.H >> m_window.FL >> m_window.FS;
+            s >> m_windowc.W >> m_windowc.H >> m_windowc.FL >> m_windowc.FS;
         } 
         else if (label == "Font") 
         {
-            s >> m_font.F >> m_font.S >> m_font.R >> m_font.G >> m_font.B;
+            s >> m_fontc.F >> m_fontc.S >> m_fontc.R >> m_fontc.G >> m_fontc.B;
             std::cout << "\tExtracting font configuration" << std::endl;
         }
         else if (label == "Player") 
         {
-            s >> m_player.SR >> m_player.CR >> m_player.S >> m_player.FR >> m_player.FG >> m_player.FB >> m_player.OR >> m_player.OG >> m_player.OB >> m_player.OT >> m_player.V;
+            s >> m_playerc.SR >> m_playerc.CR >> m_playerc.S >> m_playerc.FR >> m_playerc.FG >> m_playerc.FB >> m_playerc.OR >> m_playerc.OG >> m_playerc.OB >> m_playerc.OT >> m_playerc.V;
             std::cout << "\tExtracting player configuration" << std::endl;
         }
         else if (label == "Enemy") 
         {
-            s >> m_enemy.SR >> m_enemy.CR >> m_enemy.SMIN >> m_enemy.SMAX >> m_enemy.OR >> m_enemy.OG >> m_enemy.OB >> m_enemy.OT >> m_enemy.VMIN >> m_enemy.VMAX >> m_enemy.L >> m_enemy.SI;
+            s >> m_enemyc.SR >> m_enemyc.CR >> m_enemyc.SMIN >> m_enemyc.SMAX >> m_enemyc.OR >> m_enemyc.OG >> m_enemyc.OB >> m_enemyc.OT >> m_enemyc.VMIN >> m_enemyc.VMAX >> m_enemyc.L >> m_enemyc.SI;
             std::cout << "\tExtracting enemy configuration" << std::endl;
         }
         else if (label == "Bullet") 
         {
-            s >> m_bullet.SR >> m_bullet.CR >> m_bullet.S >> m_bullet.FR >> m_bullet.FG >> m_bullet.FB >> m_bullet.OR >> m_bullet.OG >> m_bullet.OB >> m_bullet.OT >> m_bullet.V >> m_bullet.L;
+            s >> m_bulletc.SR >> m_bulletc.CR >> m_bulletc.S >> m_bulletc.FR >> m_bulletc.FG >> m_bulletc.FB >> m_bulletc.OR >> m_bulletc.OG >> m_bulletc.OB >> m_bulletc.OT >> m_bulletc.V >> m_bulletc.L;
             std::cout << "\tExtracting bullet configuration" << std::endl;
         }
         else {
@@ -55,9 +55,9 @@ void Game::init(const std::string& path)
     }
     file.close();
 
-    InitWindow(m_window.W, m_window.H, "Geometry Wars - Michael Nguyen");
+    InitWindow(m_windowc.W, m_windowc.H, "Geometry Wars - Michael Nguyen");
 
-    SetTargetFPS(m_window.FL);
+    SetTargetFPS(m_windowc.FL);
 
     // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
 }

@@ -8,6 +8,8 @@
 #include <memory>
 
 #include "raylib.h"
+#include "Entity.h"
+#include "Vec2.h"
 
 struct PlayerConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S; };
 struct EnemyConfig  { int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI; float SMIN, SMAX; };
@@ -18,16 +20,18 @@ struct FontConfig   { int S, R, G, B; std::string F; };
 class Game 
 {
 private:
-    PlayerConfig    m_player;
-    EnemyConfig     m_enemy;
-    BulletConfig    m_bullet;
-    WindowConfig    m_window;
-    FontConfig      m_font;
+    PlayerConfig    m_playerc;
+    EnemyConfig     m_enemyc;
+    BulletConfig    m_bulletc;
+    WindowConfig    m_windowc;
+    FontConfig      m_fontc;
     int             m_score = 0;
     int             m_currentFrame = 0;
     int             m_lastEnemySpawnTime = 0;
     bool            m_paused = false;
     bool            m_running = true;
+
+    std::shared_ptr<Entity> m_player;
 
     void init(const std::string& path); // initialize game state
     void setPaused(bool paused);        // pause game
@@ -41,6 +45,9 @@ private:
 
     void spawnPlayer();
     void spawnEnemy();
+    void spawnSmallEnemies(std::shared_ptr<Entity> entity);
+    void spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos);
+    void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
 
 public:
     Game(const std::string& config);

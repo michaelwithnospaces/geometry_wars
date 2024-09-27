@@ -10,7 +10,8 @@ public:
 
     Vec2();
     Vec2(T _x, T _y);
-
 };
+
+typedef Vec2<float> Vec2f;
 
 #endif VEC2_H
