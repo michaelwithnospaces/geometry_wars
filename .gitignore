@@ -1,0 +1,16 @@
+# Ignore Visual Studio Code folder
+.vscode/
+
+# Ignore CMake build files
+build/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+
+# MacOS related files (if applicable)
+.DS_Store
+
+# Linux swap files
+*.swp
+*.swo

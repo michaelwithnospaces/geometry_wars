@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.2)
 
 # Define the project name and specify it is a C++ project
-project(ASSIGNMENT_1 CXX)
+project(GEOMETRY_WARS CXX)
 
 # Set the C++ standard to C++11 and make it a required standard (C++11 or higher)
 set(CMAKE_CXX_STANDARD 11)

@@ -59,15 +59,15 @@ void Game::init(const std::string& path)
 
     SetTargetFPS(m_window.FL);
 
-    Font font = LoadFont(m_font.F.c_str());
+    // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
 }
 
 void Game::run()
 {
-    while (!WindowShouldClose) // TODO: Window closing should be a condition instead of built into game loop
+    while (!WindowShouldClose()) // TODO: Window closing should be a condition instead of built into game loop
     {
         BeginDrawing();
-        ClearBackground(BLACK);
+        ClearBackground(DARKGRAY);
 
         EndDrawing();
     }
