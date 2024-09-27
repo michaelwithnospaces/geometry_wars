@@ -109,3 +109,5 @@ I recommend approaching this assignment in the following order:
 6. Implement the EntityManager::getEntities(tag) functionality 
 7. Implement collisions in sCollision and entity.destroy() if it's dead 
 8. Implement the rest of the game's functionality, including config file reading 
+
+std::remove_if
