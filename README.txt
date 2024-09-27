@@ -76,12 +76,12 @@ Enemy SR CR SMIN SMAX OR OG OB OT VMIN VMAX L SI
   Collision Radius 	CR 		int 
   Min / Max Speed 	SMIN,SMAX 	float, float 
   Outline Color 	OR,OG,OB 	int,int,int 
-  Outline Thickness 	OT int 		Min/Max 
-  Vertices 		VMIN,VMAX 	int,int 
+  Outline Thickness 	OT 		int
+  Min/Max Vertices 	VMIN,VMAX 	int,int 
   Small Lifespan 	L 		int 
   Spawn Interval 	SP 		int 
 
-Bullet Specification: 
+Bullet Specification:  
 Bullet SR CR S FR FG FB OR OG OB OT V L 
   Shape Radius 		SR 		int 
   Collision Radius 	CR 		int 

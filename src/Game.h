@@ -15,9 +15,9 @@ struct BulletConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V, L; float S; };
 struct WindowConfig { int W, H, FL, FS; };
 struct FontConfig   { int S, R, G, B; std::string F; };
 
-class Game {
+class Game 
+{
 private:
-    void init(const std::string& path);
     PlayerConfig    m_player;
     EnemyConfig     m_enemy;
     BulletConfig    m_bullet;
@@ -28,6 +28,19 @@ private:
     int             m_lastEnemySpawnTime = 0;
     bool            m_paused = false;
     bool            m_running = true;
+
+    void init(const std::string& path); // initialize game state
+    void setPaused(bool paused);        // pause game
+
+    void sMovement();                   // System: Entity position / movement update
+    void sUserInput();                  // System: User input
+    void sLifespan();                   // System: Entity lifespan
+    void sRender();                     // System: Render and drawing
+    void sEnemySpawner();               // System: Spawn enemies
+    void sCollision();                  // System: Collisions
+
+    void spawnPlayer();
+    void spawnEnemy();
 
 public:
     Game(const std::string& config);
