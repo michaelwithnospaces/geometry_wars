@@ -15,9 +15,9 @@
 #include "EntityManager.h"
 #include "Components.h"
 
-struct PlayerConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S; };
-struct EnemyConfig  { int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI; float SMIN, SMAX; };
-struct BulletConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V, L; float S; };
+struct PlayerConfig { int SR, CR, V, OT, FR, FG, FB, OR, OG, OB; float S; };
+struct EnemyConfig  { int SR, CR, VMIN, VMAX, L, SI, OR, OG, OB, OT; float SMIN, SMAX; };
+struct BulletConfig { int SR, CR, OT, V, L, FR, FG, FB, OR, OG, OB; float S; };
 struct WindowConfig { int W, H, FL, FS; };
 struct FontConfig   { int S, R, G, B; std::string F; };
 

@@ -87,7 +87,7 @@ void Game::sMovement()
             // TODO: Moves faster in diagonal, need to fix
             e->cTransform->velocity *= 0;
 
-            float speed = 60 * 0.2;
+            float speed = m_windowc.FL * (m_playerc.S / m_windowc.FL);
             if (e->cInput->up == true)
             {
                 e->cTransform->velocity.y -= speed;
@@ -178,21 +178,21 @@ void Game::sCollision()
     {
         if (e->cShape && e->cTransform)
         {
-            if ((e->cTransform->pos.x - e->cShape->r) < 0)
+            if ((e->cTransform->pos.x - m_playerc.CR) < 0)
             {
-                e->cTransform->pos.x = e->cShape->r;
+                e->cTransform->pos.x = m_playerc.CR;
             }
-            if ((e->cTransform->pos.x + e->cShape->r) > m_windowc.W)
+            if ((e->cTransform->pos.x + m_playerc.CR) > m_windowc.W)
             {
-                e->cTransform->pos.x = m_windowc.W - e->cShape->r;
+                e->cTransform->pos.x = m_windowc.W - m_playerc.CR;
             }
-            if ((e->cTransform->pos.y - e->cShape->r) < 0 )
+            if ((e->cTransform->pos.y - m_playerc.CR) < 0 )
             {
-                e->cTransform->pos.y = e->cShape->r;
+                e->cTransform->pos.y = m_playerc.CR;
             }
-            if ((e->cTransform->pos.y + e->cShape->r) > m_windowc.H)
+            if ((e->cTransform->pos.y + m_playerc.CR) > m_windowc.H)
             {
-                e->cTransform->pos.y = m_windowc.H - e->cShape->r;
+                e->cTransform->pos.y = m_windowc.H - m_playerc.CR;
             }
         }
     }
@@ -203,7 +203,7 @@ void Game::spawnPlayer()
     auto entity = m_entitiesManager.addEntity("player");
 
     entity->cTransform =    std::make_shared<CTransform>(Vec2f(100.0f, 100.0f), Vec2f(0.0f, 0.0f), 0.0f);
-    entity->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, Color({255, 91, 97, 255}));
+    entity->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), m_playerc.V, m_playerc.SR, Color({static_cast<unsigned char>(m_playerc.FR), static_cast<unsigned char>(m_playerc.FG), static_cast<unsigned char>(m_playerc.FB), 255}));
     entity->cInput =        std::make_shared<CInput>();
 
     m_player = entity;
