@@ -10,8 +10,9 @@ void Game::run()
     while (!WindowShouldClose()) // TODO: Window closing should be a condition instead of built into game loop
     {
         m_entitiesManager.update();
-        spawnPlayer();
+
         sRender();
+        sUserInput();
     }
 
     CloseWindow();
@@ -71,7 +72,52 @@ void Game::init(const std::string& path)
 
     SetTargetFPS(m_windowc.FL);
 
+    spawnPlayer();
     // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
+}
+
+void Game::sUserInput()
+{
+    if (IsKeyDown(KEY_W))
+    {
+        std::cout << "W Key Pressed" << std::endl;
+        m_player->cInput->up = true;
+    }
+    if (IsKeyDown(KEY_A))
+    {
+        std::cout << "A Key Pressed" << std::endl;
+        m_player->cInput->left = true;
+    }
+    if (IsKeyDown(KEY_S))
+    {
+        std::cout << "S Key Pressed" << std::endl;
+        m_player->cInput->down = true;
+    }
+    if (IsKeyDown(KEY_D))
+    {
+        std::cout << "D Key Pressed" << std::endl;
+        m_player->cInput->right = true;
+    }
+    if (IsKeyUp(KEY_W))
+    {
+        // std::cout << "W Key Released" << std::endl;
+        m_player->cInput->up = false;
+    }
+    if (IsKeyUp(KEY_A))
+    {
+        // std::cout << "A Key Released" << std::endl;
+        m_player->cInput->left = false;
+    }
+    if (IsKeyUp(KEY_S))
+    {
+        // std::cout << "S Key Released" << std::endl;
+        m_player->cInput->down = false;
+    }
+    if (IsKeyUp(KEY_D))
+    {
+        // std::cout << "D Key Released" << std::endl;
+        m_player->cInput->right = false;
+    }
 }
 
 void Game::sRender() {
@@ -95,6 +141,7 @@ void Game::spawnPlayer()
 
     Color color = {255, 0, 0, 255};
     entity->cShape = std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, color);
+    entity->cInput = std::make_shared<CInput>();
 
     m_player = entity;
 }

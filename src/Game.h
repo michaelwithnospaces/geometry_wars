@@ -13,6 +13,7 @@
 #include "Vec2.h"
 #include "Vec2ToRaylib.h"
 #include "EntityManager.h"
+#include "Components.h"
 
 struct PlayerConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S; };
 struct EnemyConfig  { int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI; float SMIN, SMAX; };
