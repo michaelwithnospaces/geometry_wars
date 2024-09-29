@@ -4,8 +4,8 @@ cmake_minimum_required(VERSION 3.2)
 # Define the project name and specify it is a C++ project
 project(GEOMETRY_WARS CXX)
 
-# Set the C++ standard to C++11 and make it a required standard (C++11 or higher)
-set(CMAKE_CXX_STANDARD 11)
+# Set the C++ standard to C++20 and make it a required standard (C++20 or higher)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Add a preprocessor definition to the project, which defines PLAT_RAYLIB.
