@@ -106,7 +106,11 @@ void Game::sMovement()
     // Bullet movement
     for (auto b : m_entitiesManager.getEntities("bullet"))
     {
+        float speed = m_windowc.FL * (m_bulletc.S / m_windowc.FL);
         
+        Vec2f velocity = b->cTransform->velocity * speed;
+
+        b->cTransform->pos += velocity;
     }
 }
 
@@ -156,7 +160,7 @@ void Game::sUserInput()
     {
         m_player->cInput->shoot = true;
         spawnBullet(m_player, {GetMousePosition().x, GetMousePosition().y});
-        // std::cout << "Mouse clicked: {" << GetMousePosition().x << ", " << GetMousePosition().y << "}" << std::endl;
+        std::cout << "Mouse clicked: {" << GetMousePosition().x << ", " << GetMousePosition().y << "}" << std::endl;
     }
     if (IsMouseButtonUp(MOUSE_BUTTON_LEFT))
     {
@@ -168,7 +172,7 @@ void Game::sRender() {
         BeginDrawing();
         ClearBackground(DARKGRAY);
 
-        for (auto e : m_entitiesManager.getEntities())
+        for (auto e : m_entitiesManager.getEntities("bullet"))
         {
             if (e->cShape)
             {
@@ -176,12 +180,21 @@ void Game::sRender() {
             }
         }
 
+        for (auto e : m_entitiesManager.getEntities("player"))
+        {
+            if (e->cShape)
+            {
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
+            }
+        }
+
+
         EndDrawing();
 }
 
 void Game::sCollision()
 {
-    for (auto e : m_entitiesManager.getEntities())
+    for (auto e : m_entitiesManager.getEntities("player"))
     {
         if (e->cShape && e->cTransform && e->cCollision)
         {
@@ -203,6 +216,29 @@ void Game::sCollision()
             }
         }
     }
+
+    for (auto e : m_entitiesManager.getEntities("bullet"))
+    {
+        if (e->cShape && e->cTransform && e->cCollision)
+        {
+            if ((e->cTransform->pos.x + e->cCollision->collissionR) < 0)
+            {
+                e->destroy();
+            }
+            if ((e->cTransform->pos.x - e->cCollision->collissionR) > m_windowc.W)
+            {
+                e->destroy();
+            }
+            if ((e->cTransform->pos.y + e->cCollision->collissionR) < 0 )
+            {
+                e->destroy();
+            }
+            if ((e->cTransform->pos.y - e->cCollision->collissionR) > m_windowc.H)
+            {
+                e->destroy();
+            }
+        }
+    }
 }
 
 void Game::spawnPlayer()
@@ -221,8 +257,11 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
 {
     auto bullet = m_entitiesManager.addEntity("bullet");
 
-    bullet->cTransform =    std::make_shared<CTransform>(entity->cShape->center, Vec2f(0.0f, 0.0f), 0.0f);
-    bullet->cShape =        std::make_shared<CShape>(entity->cShape->center, m_bulletc.V, m_bulletc.SR, Color({static_cast<unsigned char>(m_bulletc.FR), static_cast<unsigned char>(m_bulletc.FG), static_cast<unsigned char>(m_bulletc.FB), 255}));
+    Vec2f direction = mousePos - entity->cTransform->pos;
+    direction.norm();
+
+    bullet->cTransform =    std::make_shared<CTransform>(entity->cTransform->pos, direction, 0.0f);
+    bullet->cShape =        std::make_shared<CShape>(entity->cTransform->pos, m_bulletc.V, m_bulletc.SR, Color({static_cast<unsigned char>(m_bulletc.FR), static_cast<unsigned char>(m_bulletc.FG), static_cast<unsigned char>(m_bulletc.FB), 255}));
     bullet->cInput =        std::make_shared<CInput>();
     bullet->cCollision =    std::make_shared<CCollision>(m_bulletc.CR);
 }
