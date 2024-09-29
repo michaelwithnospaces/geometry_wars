@@ -5,6 +5,18 @@ Game::Game(const std::string& config)
     init(config);
 }
 
+void Game::run()
+{
+    while (!WindowShouldClose()) // TODO: Window closing should be a condition instead of built into game loop
+    {
+        m_entitiesManager.update();
+        spawnPlayer();
+        sRender();
+    }
+
+    CloseWindow();
+}
+
 void Game::init(const std::string& path) 
 {
     std::ifstream   file(path);
@@ -62,15 +74,27 @@ void Game::init(const std::string& path)
     // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
 }
 
-void Game::run()
-{
-    while (!WindowShouldClose()) // TODO: Window closing should be a condition instead of built into game loop
-    {
+void Game::sRender() {
         BeginDrawing();
         ClearBackground(DARKGRAY);
 
-        EndDrawing();
-    }
+        for (auto e : m_entitiesManager.getEntities())
+        {
+            if (e->cShape)
+            {
+                DrawPoly(toRaylibVector2(e->cShape->center), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
+            }
+        }
 
-    CloseWindow();
+        EndDrawing();
+}
+
+void Game::spawnPlayer()
+{
+    auto entity = m_entitiesManager.addEntity("player");
+
+    Color color = {255, 0, 0, 255};
+    entity->cShape = std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, color);
+
+    m_player = entity;
 }

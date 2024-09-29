@@ -6,10 +6,13 @@
 #include <sstream>
 #include <iostream>
 #include <memory>
+#include <vector>
 
 #include "raylib.h"
 #include "Entity.h"
 #include "Vec2.h"
+#include "Vec2ToRaylib.h"
+#include "EntityManager.h"
 
 struct PlayerConfig { int SR, CR, FR, FG, FB, OR, OG, OB, OT, V; float S; };
 struct EnemyConfig  { int SR, CR, OR, OG, OB, OT, VMIN, VMAX, L, SI; float SMIN, SMAX; };
@@ -21,6 +24,7 @@ class Game
 {
 private:
     PlayerConfig    m_playerc;
+    EntityManager   m_entitiesManager;
     EnemyConfig     m_enemyc;
     BulletConfig    m_bulletc;
     WindowConfig    m_windowc;
