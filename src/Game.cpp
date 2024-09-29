@@ -155,6 +155,14 @@ void Game::sUserInput()
         // std::cout << "D Key Released" << std::endl;
         m_player->cInput->right = false;
     }
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    {
+        m_player->cInput->shoot = true;
+    }
+    if (IsMouseButtonUp(MOUSE_BUTTON_LEFT))
+    {
+        m_player->cInput->shoot = false;
+    }
 }
 
 void Game::sRender() {
@@ -176,23 +184,23 @@ void Game::sCollision()
 {
     for (auto e : m_entitiesManager.getEntities())
     {
-        if (e->cShape && e->cTransform)
+        if (e->cShape && e->cTransform && e->cCollision)
         {
-            if ((e->cTransform->pos.x - m_playerc.CR) < 0)
+            if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
             {
-                e->cTransform->pos.x = m_playerc.CR;
+                e->cTransform->pos.x = e->cCollision->collissionR;
             }
-            if ((e->cTransform->pos.x + m_playerc.CR) > m_windowc.W)
+            if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
             {
-                e->cTransform->pos.x = m_windowc.W - m_playerc.CR;
+                e->cTransform->pos.x = m_windowc.W - e->cCollision->collissionR;
             }
-            if ((e->cTransform->pos.y - m_playerc.CR) < 0 )
+            if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
             {
-                e->cTransform->pos.y = m_playerc.CR;
+                e->cTransform->pos.y = e->cCollision->collissionR;
             }
-            if ((e->cTransform->pos.y + m_playerc.CR) > m_windowc.H)
+            if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
             {
-                e->cTransform->pos.y = m_windowc.H - m_playerc.CR;
+                e->cTransform->pos.y = m_windowc.H - e->cCollision->collissionR;
             }
         }
     }
@@ -205,6 +213,11 @@ void Game::spawnPlayer()
     entity->cTransform =    std::make_shared<CTransform>(Vec2f(100.0f, 100.0f), Vec2f(0.0f, 0.0f), 0.0f);
     entity->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), m_playerc.V, m_playerc.SR, Color({static_cast<unsigned char>(m_playerc.FR), static_cast<unsigned char>(m_playerc.FG), static_cast<unsigned char>(m_playerc.FB), 255}));
     entity->cInput =        std::make_shared<CInput>();
+    entity->cCollision =    std::make_shared<CCollision>(m_playerc.CR);
 
     m_player = entity;
+}
+
+void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
+{
 }

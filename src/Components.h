@@ -28,7 +28,11 @@
 
     class CCollision
     {
+    public:
+        float collissionR;
 
+        CCollision() : collissionR(1.0f) {};
+        CCollision(float cr) : collissionR(cr) {};
     };
 
     class CInput
@@ -38,8 +42,9 @@
         bool down =     false;
         bool right =    false;
         bool left =     false;
-        bool shoot =    false;
 
+        bool shoot =    false;
+        Vec2f mousePos = {0.0f, 0.0f};
         CInput() {};
     };
 
