@@ -27,6 +27,7 @@ public:
     void operator /= (const T& val);
 
     float dist(const Vec2& rhs) const;
+    void norm();
 };
 
 typedef Vec2<float> Vec2f;
@@ -116,10 +117,21 @@ void Vec2<T>::operator /= (const T& val)
 template <typename T>
 float Vec2<T>::dist(const Vec2& rhs) const
 {   
-    float dx = this->x + rhs.x;
-    float dy = this->y + rhs.y;
+    float dx = this->x - rhs.x;
+    float dy = this->y - rhs.y;
 
     return sqrt(dx * dx + dy * dy);
+}
+
+template <typename T>
+void Vec2<T>::norm()
+{
+    float length = sqrt(x * x + y * y);
+    if (length != 0) 
+    {
+        this->x /= length;
+        this->y /= length;
+    }
 }
 
 #endif
