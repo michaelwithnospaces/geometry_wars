@@ -7,6 +7,8 @@
 #include <iostream>
 #include <memory>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 
 #include "raylib.h"
 #include "Entity.h"

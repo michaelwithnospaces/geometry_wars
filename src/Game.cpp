@@ -13,6 +13,7 @@ void Game::run()
 
         sMovement();
         sCollision();
+        sEnemySpawner();
         sRender();
         sUserInput();
     }
@@ -73,6 +74,8 @@ void Game::init(const std::string& path)
     InitWindow(m_windowc.W, m_windowc.H, "Geometry Wars - Michael Nguyen");
 
     SetTargetFPS(m_windowc.FL);
+
+    srand(static_cast<unsigned int>(time(0)));
 
     spawnPlayer();
     // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
@@ -169,10 +172,20 @@ void Game::sUserInput()
 }
 
 void Game::sRender() {
+        m_currentFrame++;
+
         BeginDrawing();
         ClearBackground(DARKGRAY);
 
         for (auto e : m_entitiesManager.getEntities("bullet"))
+        {
+            if (e->cShape)
+            {
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
+            }
+        }
+
+        for (auto e : m_entitiesManager.getEntities("enemy"))
         {
             if (e->cShape)
             {
@@ -190,6 +203,15 @@ void Game::sRender() {
 
 
         EndDrawing();
+}
+
+void Game::sEnemySpawner()
+{
+    if ((m_currentFrame - m_lastEnemySpawnTime) > m_enemyc.SI)
+    {
+        spawnEnemy();
+        m_lastEnemySpawnTime = m_currentFrame;
+    }
 }
 
 void Game::sCollision()
@@ -213,7 +235,9 @@ void Game::sCollision()
             if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
             {
                 e->cTransform->pos.y = m_windowc.H - e->cCollision->collissionR;
-            }
+            }unsigned char rr = rand() % 256;
+    unsigned char rg = rand() % 256;
+    unsigned char rb = rand() % 256;
         }
     }
 
@@ -251,6 +275,24 @@ void Game::spawnPlayer()
     entity->cCollision =    std::make_shared<CCollision>(m_playerc.CR);
 
     m_player = entity;
+}
+
+void Game::spawnEnemy()
+{
+    auto enemy = m_entitiesManager.addEntity("enemy");
+
+    int vertices = (rand() % m_enemyc.VMAX) + m_enemyc.VMIN;
+
+    float rx = (rand() % (m_windowc.W - m_enemyc.SR)) + m_enemyc.SR;
+    float ry = (rand() % (m_windowc.H - m_enemyc.SR)) + m_enemyc.SR;
+
+    unsigned char rr = (rand() % 128) + 128;
+    unsigned char rg = (rand() % 128) + 128;
+    unsigned char rb = (rand() % 128) + 128;
+
+    enemy->cTransform =    std::make_shared<CTransform>(Vec2f(rx, ry), Vec2f(0.0f, 0.0f), 0.0f);
+    enemy->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), vertices, m_enemyc.SR, Color({rr, rg, rb, 255}));
+    enemy->cCollision =    std::make_shared<CCollision>(m_enemyc.CR);
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
