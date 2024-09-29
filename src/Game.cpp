@@ -80,36 +80,33 @@ void Game::init(const std::string& path)
 
 void Game::sMovement()
 {
-    for (auto e : m_entitiesManager.getEntities())
+    // Player movement
+    m_player->cTransform->velocity *= 0;
+    float speed = m_windowc.FL * (m_playerc.S / m_windowc.FL);
+    if (m_player->cInput->up == true)
     {
-        if (e->cShape && e->cTransform && e->cInput)
-        {
-            // TODO: Moves faster in diagonal, need to fix
-            e->cTransform->velocity *= 0;
+        m_player->cTransform->velocity.y -= speed;
+    }
+    if (m_player->cInput->down == true)
+    {
+        m_player->cTransform->velocity.y += speed;
+    }
+    if (m_player->cInput->left == true)
+    {
+        m_player->cTransform->velocity.x -= speed;
+    }
+    if (m_player->cInput->right == true)
+    {
+        m_player->cTransform->velocity.x += speed;
+    }
+    m_player->cTransform->velocity.norm();
+    m_player->cTransform->velocity *= speed;
+    m_player->cTransform->pos += m_player->cTransform->velocity;
 
-            float speed = m_windowc.FL * (m_playerc.S / m_windowc.FL);
-            if (e->cInput->up == true)
-            {
-                e->cTransform->velocity.y -= speed;
-            }
-            if (e->cInput->down == true)
-            {
-                e->cTransform->velocity.y += speed;
-            }
-            if (e->cInput->left == true)
-            {
-                e->cTransform->velocity.x -= speed;
-            }
-            if (e->cInput->right == true)
-            {
-                e->cTransform->velocity.x += speed;
-            }
-
-            e->cTransform->velocity.norm();
-            e->cTransform->velocity *= speed;
-
-            e->cTransform->pos += e->cTransform->velocity;
-        }
+    // Bullet movement
+    for (auto b : m_entitiesManager.getEntities("bullet"))
+    {
+        
     }
 }
 
@@ -158,6 +155,8 @@ void Game::sUserInput()
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
         m_player->cInput->shoot = true;
+        m_player->cInput->mousePos = {GetMousePosition().x, GetMousePosition().y};
+        std::cout << "Mouse clicked: {" << m_player->cInput->mousePos.x << ", " << m_player->cInput->mousePos.y << "}" << std::endl;
     }
     if (IsMouseButtonUp(MOUSE_BUTTON_LEFT))
     {
@@ -220,4 +219,10 @@ void Game::spawnPlayer()
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
 {
+    auto bullet = m_entitiesManager.addEntity("bullet");
+
+    bullet->cTransform =    std::make_shared<CTransform>(entity->cShape->center, Vec2f(0.0f, 0.0f), 0.0f);
+    bullet->cShape =        std::make_shared<CShape>(entity->cShape->center, m_bulletc.V, m_bulletc.SR, Color({static_cast<unsigned char>(m_bulletc.FR), static_cast<unsigned char>(m_bulletc.FG), static_cast<unsigned char>(m_bulletc.FB), 255}));
+    bullet->cInput =        std::make_shared<CInput>();
+    bullet->cCollision =    std::make_shared<CCollision>(m_bulletc.CR);
 }
