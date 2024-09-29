@@ -6,7 +6,12 @@
 
     class CTransform 
     {
+    public:
+        Vec2f pos = {0.0f, 0.0f};
+        Vec2f velocity = {0.0f, 0.0f};
+        float angle = 0.0f;
 
+        CTransform(const Vec2f& p, const Vec2f& v, float a) : pos(p), velocity(v), angle(a) {};
     };
 
     class CShape
