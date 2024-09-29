@@ -87,23 +87,26 @@ void Game::sMovement()
             // TODO: Moves faster in diagonal, need to fix
             e->cTransform->velocity *= 0;
 
-            float speed = 0.2;
+            float speed = 60 * 0.2;
             if (e->cInput->up == true)
             {
-                e->cTransform->velocity.y -= 60 * speed;
+                e->cTransform->velocity.y -= speed;
             }
             if (e->cInput->down == true)
             {
-                e->cTransform->velocity.y += 60 * speed;
+                e->cTransform->velocity.y += speed;
             }
             if (e->cInput->left == true)
             {
-                e->cTransform->velocity.x -= 60 * speed;
+                e->cTransform->velocity.x -= speed;
             }
             if (e->cInput->right == true)
             {
-                e->cTransform->velocity.x += 60 * speed;
+                e->cTransform->velocity.x += speed;
             }
+
+            e->cTransform->velocity.norm();
+            e->cTransform->velocity *= speed;
 
             e->cTransform->pos += e->cTransform->velocity;
         }
