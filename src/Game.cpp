@@ -12,6 +12,7 @@ void Game::run()
         m_entitiesManager.update();
 
         sMovement();
+        sCollision();
         sRender();
         sUserInput();
     }
@@ -81,11 +82,12 @@ void Game::sMovement()
 {
     for (auto e : m_entitiesManager.getEntities())
     {
-        if (e->cShape && e->cTransform)
+        if (e->cShape && e->cTransform && e->cInput)
         {
+            // TODO: Moves faster in diagonal, need to fix
             e->cTransform->velocity *= 0;
 
-            float speed = 0.5;
+            float speed = 0.2;
             if (e->cInput->up == true)
             {
                 e->cTransform->velocity.y -= 60 * speed;
@@ -112,22 +114,22 @@ void Game::sUserInput()
 {
     if (IsKeyDown(KEY_W))
     {
-        std::cout << "W Key Pressed" << std::endl;
+        // std::cout << "W Key Pressed" << std::endl;
         m_player->cInput->up = true;
     }
     if (IsKeyDown(KEY_A))
     {
-        std::cout << "A Key Pressed" << std::endl;
+        // std::cout << "A Key Pressed" << std::endl;
         m_player->cInput->left = true;
     }
     if (IsKeyDown(KEY_S))
     {
-        std::cout << "S Key Pressed" << std::endl;
+        // std::cout << "S Key Pressed" << std::endl;
         m_player->cInput->down = true;
     }
     if (IsKeyDown(KEY_D))
     {
-        std::cout << "D Key Pressed" << std::endl;
+        // std::cout << "D Key Pressed" << std::endl;
         m_player->cInput->right = true;
     }
     if (IsKeyUp(KEY_W))
@@ -167,12 +169,38 @@ void Game::sRender() {
         EndDrawing();
 }
 
+void Game::sCollision()
+{
+    for (auto e : m_entitiesManager.getEntities())
+    {
+        if (e->cShape && e->cTransform)
+        {
+            if ((e->cTransform->pos.x - e->cShape->r) < 0)
+            {
+                e->cTransform->pos.x = e->cShape->r;
+            }
+            if ((e->cTransform->pos.x + e->cShape->r) > m_windowc.W)
+            {
+                e->cTransform->pos.x = m_windowc.W - e->cShape->r;
+            }
+            if ((e->cTransform->pos.y - e->cShape->r) < 0 )
+            {
+                e->cTransform->pos.y = e->cShape->r;
+            }
+            if ((e->cTransform->pos.y + e->cShape->r) > m_windowc.H)
+            {
+                e->cTransform->pos.y = m_windowc.H - e->cShape->r;
+            }
+        }
+    }
+}
+
 void Game::spawnPlayer()
 {
     auto entity = m_entitiesManager.addEntity("player");
 
     entity->cTransform =    std::make_shared<CTransform>(Vec2f(100.0f, 100.0f), Vec2f(0.0f, 0.0f), 0.0f);
-    entity->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, Color({255, 0, 0, 255}));
+    entity->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, Color({255, 91, 97, 255}));
     entity->cInput =        std::make_shared<CInput>();
 
     m_player = entity;
