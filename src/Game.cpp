@@ -235,31 +235,43 @@ void Game::sCollision()
             if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
             {
                 e->cTransform->pos.y = m_windowc.H - e->cCollision->collissionR;
-            }unsigned char rr = rand() % 256;
-    unsigned char rg = rand() % 256;
-    unsigned char rb = rand() % 256;
+            }
         }
     }
 
-    for (auto e : m_entitiesManager.getEntities("bullet"))
+    for (auto b : m_entitiesManager.getEntities("bullet"))
     {
-        if (e->cShape && e->cTransform && e->cCollision)
+        if (b->cShape && b->cTransform && b->cCollision)
         {
-            if ((e->cTransform->pos.x + e->cCollision->collissionR) < 0)
+            if ((b->cTransform->pos.x + b->cCollision->collissionR) < 0)
             {
-                e->destroy();
+                b->destroy();
             }
-            if ((e->cTransform->pos.x - e->cCollision->collissionR) > m_windowc.W)
+            if ((b->cTransform->pos.x - b->cCollision->collissionR) > m_windowc.W)
             {
-                e->destroy();
+                b->destroy();
             }
-            if ((e->cTransform->pos.y + e->cCollision->collissionR) < 0 )
+            if ((b->cTransform->pos.y + b->cCollision->collissionR) < 0 )
             {
-                e->destroy();
+                b->destroy();
             }
-            if ((e->cTransform->pos.y - e->cCollision->collissionR) > m_windowc.H)
+            if ((b->cTransform->pos.y - b->cCollision->collissionR) > m_windowc.H)
             {
-                e->destroy();
+                b->destroy();
+            }
+        }
+        for (auto e : m_entitiesManager.getEntities())
+        {
+            if (e->cCollision)
+            {
+                float sumR = e->cShape->r + b->cShape->r;
+                float distBetweenR = e->cTransform->pos.dist(b->cTransform->pos);
+
+                if (distBetweenR < sumR && e->tag() != b->tag() && e != m_player)
+                {
+                    b->destroy();
+                    e->destroy();
+                }
             }
         }
     }
