@@ -11,6 +11,7 @@ void Game::run()
     {
         m_entitiesManager.update();
 
+        sMovement();
         sRender();
         sUserInput();
     }
@@ -76,6 +77,37 @@ void Game::init(const std::string& path)
     // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
 }
 
+void Game::sMovement()
+{
+    for (auto e : m_entitiesManager.getEntities())
+    {
+        if (e->cShape && e->cTransform)
+        {
+            e->cTransform->velocity *= 0;
+
+            float speed = 0.5;
+            if (e->cInput->up == true)
+            {
+                e->cTransform->velocity.y -= 60 * speed;
+            }
+            if (e->cInput->down == true)
+            {
+                e->cTransform->velocity.y += 60 * speed;
+            }
+            if (e->cInput->left == true)
+            {
+                e->cTransform->velocity.x -= 60 * speed;
+            }
+            if (e->cInput->right == true)
+            {
+                e->cTransform->velocity.x += 60 * speed;
+            }
+
+            e->cTransform->pos += e->cTransform->velocity;
+        }
+    }
+}
+
 void Game::sUserInput()
 {
     if (IsKeyDown(KEY_W))
@@ -128,7 +160,7 @@ void Game::sRender() {
         {
             if (e->cShape)
             {
-                DrawPoly(toRaylibVector2(e->cShape->center), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
             }
         }
 
@@ -139,9 +171,9 @@ void Game::spawnPlayer()
 {
     auto entity = m_entitiesManager.addEntity("player");
 
-    Color color = {255, 0, 0, 255};
-    entity->cShape = std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, color);
-    entity->cInput = std::make_shared<CInput>();
+    entity->cTransform =    std::make_shared<CTransform>(Vec2f(100.0f, 100.0f), Vec2f(0.0f, 0.0f), 0.0f);
+    entity->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), 8, 50.0f, Color({255, 0, 0, 255}));
+    entity->cInput =        std::make_shared<CInput>();
 
     m_player = entity;
 }
