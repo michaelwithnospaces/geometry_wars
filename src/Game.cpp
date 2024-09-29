@@ -155,8 +155,8 @@ void Game::sUserInput()
     if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
     {
         m_player->cInput->shoot = true;
-        m_player->cInput->mousePos = {GetMousePosition().x, GetMousePosition().y};
-        std::cout << "Mouse clicked: {" << m_player->cInput->mousePos.x << ", " << m_player->cInput->mousePos.y << "}" << std::endl;
+        spawnBullet(m_player, {GetMousePosition().x, GetMousePosition().y});
+        // std::cout << "Mouse clicked: {" << GetMousePosition().x << ", " << GetMousePosition().y << "}" << std::endl;
     }
     if (IsMouseButtonUp(MOUSE_BUTTON_LEFT))
     {

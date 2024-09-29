@@ -42,9 +42,7 @@
         bool down =     false;
         bool right =    false;
         bool left =     false;
-
         bool shoot =    false;
-        Vec2f mousePos = {0.0f, 0.0f};
         CInput() {};
     };
 
