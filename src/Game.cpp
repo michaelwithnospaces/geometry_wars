@@ -187,17 +187,31 @@ void Game::sRender() {
 
         for (auto e : m_entitiesManager.getEntities("enemy"))
         {
-            if (e->cShape)
+            if (e->cShape && e->cTransform)
             {
-                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
+                e->cTransform->angle += 5.0f;
+
+                if (e->cTransform->angle > 360.0f)
+                {
+                    e->cTransform->angle -= 360.0f;
+                }
+
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
             }
+            
         }
 
         for (auto e : m_entitiesManager.getEntities("player"))
         {
-            if (e->cShape)
+            if (e->cShape && e->cTransform)
             {
-                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
+                e->cTransform->angle += 5.0f;
+
+                if (e->cTransform->angle > 360.0f)
+                {
+                    e->cTransform->angle -= 360.0f;
+                }
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
             }
         }
 
