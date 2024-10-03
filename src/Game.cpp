@@ -309,8 +309,8 @@ void Game::spawnEnemy()
 
     int vertices = (rand() % m_enemyc.VMAX) + m_enemyc.VMIN;
 
-    float rx = (rand() % (m_windowc.W - m_enemyc.SR)) + m_enemyc.SR;
-    float ry = (rand() % (m_windowc.H - m_enemyc.SR)) + m_enemyc.SR;
+    float rx = (rand() % (m_windowc.W - 2 * m_enemyc.SR)) + m_enemyc.SR;
+    float ry = (rand() % (m_windowc.H - 2 * m_enemyc.SR)) + m_enemyc.SR;
 
     unsigned char rr = (rand() % 128) + 128;
     unsigned char rg = (rand() % 128) + 128;
