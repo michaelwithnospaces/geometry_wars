@@ -232,49 +232,59 @@ void Game::sEnemySpawner()
 void Game::sCollision()
 {
     // Player collision with boundary
-    for (auto e : m_entitiesManager.getEntities("player"))
+    for (auto p : m_entitiesManager.getEntities("player"))
     {
-        if (e->cShape && e->cTransform && e->cCollision)
+        if (p->cShape && p->cTransform && p->cCollision)
         {
-            if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
+            if ((p->cTransform->pos.x - p->cCollision->collissionR) < 0)
             {
-                e->cTransform->pos.x = e->cCollision->collissionR;
+                p->cTransform->pos.x = p->cCollision->collissionR;
             }
-            if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
+            if ((p->cTransform->pos.x + p->cCollision->collissionR) > m_windowc.W)
             {
-                e->cTransform->pos.x = m_windowc.W - e->cCollision->collissionR;
+                p->cTransform->pos.x = m_windowc.W - p->cCollision->collissionR;
             }
-            if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
+            if ((p->cTransform->pos.y - p->cCollision->collissionR) < 0 )
             {
-                e->cTransform->pos.y = e->cCollision->collissionR;
+                p->cTransform->pos.y = p->cCollision->collissionR;
             }
-            if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
+            if ((p->cTransform->pos.y + p->cCollision->collissionR) > m_windowc.H)
             {
-                e->cTransform->pos.y = m_windowc.H - e->cCollision->collissionR;
+                p->cTransform->pos.y = m_windowc.H - p->cCollision->collissionR;
             }
-        }
-    }
 
-    // enemy collission with wall
-    for (auto e : m_entitiesManager.getEntities("enemy"))
-    {
-        if (e->cShape && e->cTransform && e->cCollision)
-        {
-            if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
+            // enemy collission with wall
+            for (auto e : m_entitiesManager.getEntities("enemy"))
             {
-                e->cTransform->velocity.x = -e->cTransform->velocity.x;
-            }
-            if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
-            {
-                e->cTransform->velocity.x = -e->cTransform->velocity.x;
-            }
-            if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
-            {
-                e->cTransform->velocity.y = -e->cTransform->velocity.y;
-            }
-            if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
-            {
-                e->cTransform->velocity.y = -e->cTransform->velocity.y;
+                if (e->cShape && e->cTransform && e->cCollision)
+                {
+                    float sumR = p->cShape->r + e->cShape->r;
+                    float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
+
+                    if (distanceBetween < sumR)
+                    {
+                        e->destroy();
+                        Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
+                        p->cTransform->pos = center;
+                    }
+
+                    if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
+                    {
+                        e->cTransform->velocity.x = -e->cTransform->velocity.x;
+                    }
+                    if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
+                    {
+                        e->cTransform->velocity.x = -e->cTransform->velocity.x;
+                    }
+                    if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
+                    {
+                        e->cTransform->velocity.y = -e->cTransform->velocity.y;
+                    }
+                    if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
+                    {
+                        e->cTransform->velocity.y = -e->cTransform->velocity.y;
+                    }
+                }
             }
         }
     }
