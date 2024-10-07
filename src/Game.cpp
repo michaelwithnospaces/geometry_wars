@@ -85,7 +85,7 @@ void Game::sMovement()
 {
     // Player movement
     m_player->cTransform->velocity *= 0;
-    float speed = m_windowc.FL * (m_playerc.S / m_windowc.FL);
+    float speed = m_playerc.S;
     if (m_player->cInput->up == true)
     {
         m_player->cTransform->velocity.y -= speed;
@@ -109,11 +109,21 @@ void Game::sMovement()
     // Bullet movement
     for (auto b : m_entitiesManager.getEntities("bullet"))
     {
-        float speed = m_windowc.FL * (m_bulletc.S / m_windowc.FL);
+        float speed = m_bulletc.S;
         
         Vec2f velocity = b->cTransform->velocity * speed;
 
         b->cTransform->pos += velocity;
+    }
+
+    // Enemy movement
+    for (auto e : m_entitiesManager.getEntities("enemy"))
+    {
+        float speed = m_playerc.S; // TODO: Change speed to interval
+        
+        Vec2f velocity = e->cTransform->velocity * speed;
+
+        e->cTransform->pos += velocity;
     }
 }
 
@@ -190,7 +200,6 @@ void Game::sRender() {
             if (e->cShape && e->cTransform)
             {
                 e->cTransform->angle += 5.0f;
-
                 if (e->cTransform->angle > 360.0f)
                 {
                     e->cTransform->angle -= 360.0f;
@@ -230,6 +239,7 @@ void Game::sEnemySpawner()
 
 void Game::sCollision()
 {
+    // Player collision with boundary
     for (auto e : m_entitiesManager.getEntities("player"))
     {
         if (e->cShape && e->cTransform && e->cCollision)
@@ -253,8 +263,34 @@ void Game::sCollision()
         }
     }
 
+    // enemy collission with wall
+    for (auto e : m_entitiesManager.getEntities("enemy"))
+    {
+        if (e->cShape && e->cTransform && e->cCollision)
+        {
+            if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
+            {
+                e->cTransform->velocity.x = -e->cTransform->velocity.x;
+            }
+            if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
+            {
+                e->cTransform->velocity.x = -e->cTransform->velocity.x;
+            }
+            if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
+            {
+                e->cTransform->velocity.y = -e->cTransform->velocity.y;
+            }
+            if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
+            {
+                e->cTransform->velocity.y = -e->cTransform->velocity.y;
+            }
+        }
+    }
+
+    // Bullet collisions
     for (auto b : m_entitiesManager.getEntities("bullet"))
     {
+        // Bullet out of bounds
         if (b->cShape && b->cTransform && b->cCollision)
         {
             if ((b->cTransform->pos.x + b->cCollision->collissionR) < 0)
@@ -274,6 +310,8 @@ void Game::sCollision()
                 b->destroy();
             }
         }
+
+        // Bullet collision with entity
         for (auto e : m_entitiesManager.getEntities())
         {
             if (e->cCollision)
@@ -316,10 +354,22 @@ void Game::spawnEnemy()
     unsigned char rg = (rand() % 128) + 128;
     unsigned char rb = (rand() % 128) + 128;
 
-    enemy->cTransform =    std::make_shared<CTransform>(Vec2f(rx, ry), Vec2f(0.0f, 0.0f), 0.0f);
+    enemy->cTransform =    std::make_shared<CTransform>(Vec2f(rx, ry), Vec2f(0.5f, 0.5f), 0.0f);
     enemy->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), vertices, m_enemyc.SR, Color({rr, rg, rb, 255}));
     enemy->cCollision =    std::make_shared<CCollision>(m_enemyc.CR);
 }
+
+// void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
+// {
+//     for (int i = 0; i < entity->cShape->sides; i++)
+//     {
+//         auto enemy = m_entitiesManager.addEntity("enemy");
+
+//         Color smallEnemyColor = {entity->cShape->color.r, entity->cShape->color.g, entity->cShape->color.b, 150};
+//         enemy->cShape = std::make_shared<CShape>(entity->cShape->center, entity->cShape->sides, entity->cShape->r / 2.0f, smallEnemyColor);
+//         enemy->cTransform = std::make_shared<CTransform>();
+//     }
+// }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
 {
