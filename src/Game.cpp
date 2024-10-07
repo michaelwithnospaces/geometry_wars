@@ -109,21 +109,13 @@ void Game::sMovement()
     // Bullet movement
     for (auto b : m_entitiesManager.getEntities("bullet"))
     {
-        float speed = m_bulletc.S;
-        
-        Vec2f velocity = b->cTransform->velocity * speed;
-
-        b->cTransform->pos += velocity;
+        b->cTransform->pos += b->cTransform->velocity;
     }
 
     // Enemy movement
     for (auto e : m_entitiesManager.getEntities("enemy"))
     {
-        float speed = m_playerc.S; // TODO: Change speed to interval
-        
-        Vec2f velocity = e->cTransform->velocity * speed;
-
-        e->cTransform->pos += velocity;
+        e->cTransform->pos += e->cTransform->velocity;
     }
 }
 
@@ -346,39 +338,50 @@ void Game::spawnEnemy()
     auto enemy = m_entitiesManager.addEntity("enemy");
 
     int vertices = (rand() % m_enemyc.VMAX) + m_enemyc.VMIN;
+    int speed =  m_enemyc.SMIN + (static_cast<float>(rand()) / m_enemyc.SMAX) * (m_enemyc.SMAX - m_enemyc.SMIN);
 
     float rx = (rand() % (m_windowc.W - 2 * m_enemyc.SR)) + m_enemyc.SR;
     float ry = (rand() % (m_windowc.H - 2 * m_enemyc.SR)) + m_enemyc.SR;
+    float angleRadians = static_cast<float>(rand()) / RAND_MAX * 2.0f * M_PI;
 
     unsigned char rr = (rand() % 128) + 128;
     unsigned char rg = (rand() % 128) + 128;
     unsigned char rb = (rand() % 128) + 128;
 
-    enemy->cTransform =    std::make_shared<CTransform>(Vec2f(rx, ry), Vec2f(0.5f, 0.5f), 0.0f);
+    Vec2f v;
+    v.x = speed * std::cos(angleRadians);
+    v.y = speed * std::sin(angleRadians);
+
+    enemy->cTransform =    std::make_shared<CTransform>(Vec2f(rx, ry), v, 0.0f);
     enemy->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), vertices, m_enemyc.SR, Color({rr, rg, rb, 255}));
     enemy->cCollision =    std::make_shared<CCollision>(m_enemyc.CR);
 }
 
-// void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
-// {
-//     for (int i = 0; i < entity->cShape->sides; i++)
-//     {
-//         auto enemy = m_entitiesManager.addEntity("enemy");
+void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
+{
+    float angle = 0.0f;
+    for (int i = 0; i < entity->cShape->sides; i++)
+    {
+        auto enemy = m_entitiesManager.addEntity("enemy");
 
-//         Color smallEnemyColor = {entity->cShape->color.r, entity->cShape->color.g, entity->cShape->color.b, 150};
-//         enemy->cShape = std::make_shared<CShape>(entity->cShape->center, entity->cShape->sides, entity->cShape->r / 2.0f, smallEnemyColor);
-//         enemy->cTransform = std::make_shared<CTransform>();
-//     }
-// }
+        Color smallEnemyColor = {entity->cShape->color.r, entity->cShape->color.g, entity->cShape->color.b, 150};
+        enemy->cShape =         std::make_shared<CShape>(entity->cShape->center, entity->cShape->sides, entity->cShape->r / 2.0f, smallEnemyColor);
+        enemy->cTransform =     std::make_shared<CTransform>(entity->cTransform->pos, Vec2f(0.0f, 0.0f), angle);
+        enemy->cCollision =     std::make_shared<CCollision>(entity->cShape->r / 2.0f);
+
+        angle += 360.0f / entity->cShape->sides;
+    }
+}
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
 {
     auto bullet = m_entitiesManager.addEntity("bullet");
 
-    Vec2f direction = mousePos - entity->cTransform->pos;
-    direction.norm();
+    Vec2f velocity = mousePos - entity->cTransform->pos;
+    velocity.norm();
+    velocity *= m_bulletc.S;
 
-    bullet->cTransform =    std::make_shared<CTransform>(entity->cTransform->pos, direction, 0.0f);
+    bullet->cTransform =    std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
     bullet->cShape =        std::make_shared<CShape>(entity->cTransform->pos, m_bulletc.V, m_bulletc.SR, Color({static_cast<unsigned char>(m_bulletc.FR), static_cast<unsigned char>(m_bulletc.FG), static_cast<unsigned char>(m_bulletc.FB), 255}));
     bullet->cInput =        std::make_shared<CInput>();
     bullet->cCollision =    std::make_shared<CCollision>(m_bulletc.CR);
