@@ -234,6 +234,7 @@ void Game::sCollision()
     // Player collision with boundary
     for (auto p : m_entitiesManager.getEntities("player"))
     {
+        // player collision with wall
         if (p->cShape && p->cTransform && p->cCollision)
         {
             if ((p->cTransform->pos.x - p->cCollision->collissionR) < 0)
@@ -252,38 +253,38 @@ void Game::sCollision()
             {
                 p->cTransform->pos.y = m_windowc.H - p->cCollision->collissionR;
             }
+        }
 
-            // enemy collission with wall
-            for (auto e : m_entitiesManager.getEntities("enemy"))
+        // enemy collission with wall
+        for (auto e : m_entitiesManager.getEntities("enemy"))
+        {
+            if (e->cShape && e->cTransform && e->cCollision)
             {
-                if (e->cShape && e->cTransform && e->cCollision)
+                float sumR = p->cShape->r + e->cShape->r;
+                float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
+
+                if (distanceBetween < sumR)
                 {
-                    float sumR = p->cShape->r + e->cShape->r;
-                    float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
+                    e->destroy();
+                    Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
+                    p->cTransform->pos = center;
+                }
 
-                    if (distanceBetween < sumR)
-                    {
-                        e->destroy();
-                        Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
-                        p->cTransform->pos = center;
-                    }
-
-                    if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
-                    {
-                        e->cTransform->velocity.x = -e->cTransform->velocity.x;
-                    }
-                    if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
-                    {
-                        e->cTransform->velocity.x = -e->cTransform->velocity.x;
-                    }
-                    if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
-                    {
-                        e->cTransform->velocity.y = -e->cTransform->velocity.y;
-                    }
-                    if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
-                    {
-                        e->cTransform->velocity.y = -e->cTransform->velocity.y;
-                    }
+                if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
+                {
+                    e->cTransform->velocity.x = -e->cTransform->velocity.x;
+                }
+                if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
+                {
+                    e->cTransform->velocity.x = -e->cTransform->velocity.x;
+                }
+                if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
+                {
+                    e->cTransform->velocity.y = -e->cTransform->velocity.y;
+                }
+                if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
+                {
+                    e->cTransform->velocity.y = -e->cTransform->velocity.y;
                 }
             }
         }
