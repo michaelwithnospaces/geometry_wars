@@ -107,21 +107,12 @@ void Game::sMovement()
     m_player->cTransform->velocity *= speed;
     m_player->cTransform->pos += m_player->cTransform->velocity;
 
-    // Bullet movement
-    for (auto b : m_entitiesManager.getEntities("bullet"))
+    for (auto e : m_entitiesManager.getEntities())
     {
-        b->cTransform->pos += b->cTransform->velocity;
-    }
-
-    // Enemy movement
-    for (auto e : m_entitiesManager.getEntities("enemy"))
-    {
-        e->cTransform->pos += e->cTransform->velocity;
-    }
-
-    for (auto s : m_entitiesManager.getEntities("small enemy"))
-    {
-        s->cTransform->pos += s->cTransform->velocity;
+        if (e->cTransform && e->tag() != "player")
+        {
+            e->cTransform->pos += e->cTransform->velocity;  
+        }
     }
 }
 
@@ -209,19 +200,8 @@ void Game::sRender() {
             {
                 e->cShape->color.a = static_cast<unsigned char>(std::max(0.0f, (e->cLifespan->framesAlive / static_cast<float>(e->cLifespan->lifeFrames)) * 255));
             }
-        }
 
-        for (auto e : m_entitiesManager.getEntities("bullet"))
-        {
-            if (e->cShape)
-            {
-                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, 0.0f, e->cShape->color);
-            }
-        }
-
-        for (auto e : m_entitiesManager.getEntities("enemy"))
-        {
-            if (e->cShape && e->cTransform)
+            if (e->cShape && e->cTransform && e->tag() != "player")
             {
                 e->cTransform->angle += 5.0f;
                 if (e->cTransform->angle > 360.0f)
@@ -231,38 +211,18 @@ void Game::sRender() {
 
                 DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
             }
-            
-        }
-
-        for (auto e : m_entitiesManager.getEntities("small enemy"))
-        {
-            if (e->cShape && e->cTransform)
-            {
-                e->cTransform->angle += 5.0f;
-                if (e->cTransform->angle > 360.0f)
-                {
-                    e->cTransform->angle -= 360.0f;
-                }
-
-                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
-            }
-            
         }
 
         for (auto e : m_entitiesManager.getEntities("player"))
         {
-            if (e->cShape && e->cTransform)
+            e->cTransform->angle += 5.0f;
+            if (e->cTransform->angle > 360.0f)
             {
-                e->cTransform->angle += 5.0f;
-
-                if (e->cTransform->angle > 360.0f)
-                {
-                    e->cTransform->angle -= 360.0f;
-                }
-                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
+                e->cTransform->angle -= 360.0f;
             }
-        }
 
+            DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
+        }
 
         EndDrawing();
 }
