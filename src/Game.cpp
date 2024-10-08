@@ -14,6 +14,7 @@ void Game::run()
         sMovement();
         sCollision();
         sEnemySpawner();
+        sLifespan();
         sRender();
         sUserInput();
     }
@@ -178,11 +179,37 @@ void Game::sUserInput()
     }
 }
 
+void Game::sLifespan()
+{
+    for (auto e : m_entitiesManager.getEntities())
+    {
+        if (e->cLifespan)
+        {
+            if (e->cLifespan->framesAlive < 0)
+            {
+                e->destroy();
+            }
+            else
+            {
+                e->cLifespan->framesAlive--;
+            }
+        }
+    }
+}
+
 void Game::sRender() {
         m_currentFrame++;
 
         BeginDrawing();
         ClearBackground(DARKGRAY);
+
+        for (auto e : m_entitiesManager.getEntities())
+        {
+            if (e->cLifespan)
+            {
+                e->cShape->color.a = static_cast<unsigned char>(std::max(0.0f, (e->cLifespan->framesAlive / static_cast<float>(e->cLifespan->lifeFrames)) * 255));
+            }
+        }
 
         for (auto e : m_entitiesManager.getEntities("bullet"))
         {
@@ -403,10 +430,11 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
         v.x = speed * std::cos(angleRadians);
         v.y = speed * std::sin(angleRadians);
 
-        Color smallEnemyColor = {entity->cShape->color.r, entity->cShape->color.g, entity->cShape->color.b, 150};
+        Color smallEnemyColor = {entity->cShape->color.r, entity->cShape->color.g, entity->cShape->color.b, 255};
         enemy->cTransform =     std::make_shared<CTransform>(entity->cTransform->pos, v, 0.0f);
         enemy->cShape =         std::make_shared<CShape>(entity->cShape->center, entity->cShape->sides, entity->cShape->r / 2.0f, smallEnemyColor);
         enemy->cCollision =     std::make_shared<CCollision>(entity->cShape->r / 2.0f);
+        enemy->cLifespan =      std::make_shared<CLifespan>(m_enemyc.L);
     }   
 }
 

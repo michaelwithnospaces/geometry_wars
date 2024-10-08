@@ -53,7 +53,12 @@
 
     class CLifespan
     {
+    public:
+        int lifeFrames;
+        int framesAlive;
 
+        CLifespan() : lifeFrames(0), framesAlive(0) {}
+        CLifespan(int _frames) : lifeFrames(_frames), framesAlive(_frames) {}
     };
 
 #endif
