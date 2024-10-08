@@ -476,4 +476,5 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
     bullet->cShape =        std::make_shared<CShape>(entity->cTransform->pos, m_bulletc.V, m_bulletc.SR, Color({static_cast<unsigned char>(m_bulletc.FR), static_cast<unsigned char>(m_bulletc.FG), static_cast<unsigned char>(m_bulletc.FB), 255}));
     bullet->cInput =        std::make_shared<CInput>();
     bullet->cCollision =    std::make_shared<CCollision>(m_bulletc.CR);
+    bullet->cLifespan =     std::make_shared<CLifespan>(m_bulletc.L);
 }
