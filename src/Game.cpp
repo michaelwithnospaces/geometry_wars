@@ -221,7 +221,7 @@ void Game::sRender() {
                 e->cShape->color.a = static_cast<unsigned char>(std::max(0.0f, (e->cLifespan->framesAlive / static_cast<float>(e->cLifespan->lifeFrames)) * 255));
             }
 
-            if (e->cShape && e->cTransform && e->tag() != "player")
+            if (e->cShape && e->cTransform && e->tag() != "player" && e->tag() != "bullet")
             {
                 e->cTransform->angle += 5.0f;
                 if (e->cTransform->angle > 360.0f)
@@ -229,6 +229,14 @@ void Game::sRender() {
                     e->cTransform->angle -= 360.0f;
                 }
 
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
+            }
+        }
+
+        for (auto e : m_entitiesManager.getEntities("bullet"))
+        {
+            if (e->cShape && e->cTransform)
+            {
                 DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
             }
         }
