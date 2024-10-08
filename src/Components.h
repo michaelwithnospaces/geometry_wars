@@ -48,7 +48,11 @@
 
     class CScore
     {
+    public:
+        int ptAward;
 
+        CScore() : ptAward(0) {};
+        CScore(int points) : ptAward(points) {};
     };
 
     class CLifespan

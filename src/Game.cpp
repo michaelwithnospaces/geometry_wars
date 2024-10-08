@@ -265,6 +265,8 @@ void Game::sRender() {
                 DrawText(pausedText, textX, textY, fontSize, {255, 255, 255, 200});
         }
 
+        DrawText(("SCORE: " + std::to_string(m_score)).c_str(), 10, 10, 25, {255, 255, 255, 200});
+
         EndDrawing();
 }
 
@@ -372,6 +374,7 @@ void Game::sCollision()
 
                 if (distBetweenR < sumR && e->tag() != b->tag() && e != m_player)
                 {
+                    m_score += e->cScore->ptAward;
                     b->destroy();
                     spawnSmallEnemies(e);
                     e->destroy();
@@ -428,6 +431,7 @@ void Game::spawnEnemy()
             enemy->cTransform =    std::make_shared<CTransform>(Vec2f(spawnLocation.x, spawnLocation.y), v, 0.0f);
             enemy->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), vertices, m_enemyc.SR, Color({rr, rg, rb, 255}));
             enemy->cCollision =    std::make_shared<CCollision>(m_enemyc.CR);
+            enemy->cScore =        std::make_shared<CScore>(vertices * 100);
 
             enemySpawned = true;
         }
