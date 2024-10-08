@@ -11,12 +11,16 @@ void Game::run()
     {
         m_entitiesManager.update();
 
-        sMovement();
-        sCollision();
-        sEnemySpawner();
-        sLifespan();
         sRender();
         sUserInput();
+        
+        if (!m_paused)
+        {
+            sMovement();
+            sCollision();
+            sEnemySpawner();
+            sLifespan();
+        }
     }
 
     CloseWindow();
@@ -82,6 +86,18 @@ void Game::init(const std::string& path)
     // Font font = LoadFont(m_font.F.c_str()); // TODO: Import font
 }
 
+void Game::setPaused(bool paused)
+{
+    if (paused)
+    {
+        m_paused = true;
+    }
+    else
+    {
+        m_paused = false;
+    }
+}
+
 void Game::sMovement()
 {
     // Player movement
@@ -118,6 +134,10 @@ void Game::sMovement()
 
 void Game::sUserInput()
 {
+    if (IsKeyPressed(KEY_P))
+    {
+        setPaused(!m_paused);
+    }
     if (IsKeyDown(KEY_W))
     {
         // std::cout << "W Key Pressed" << std::endl;
@@ -222,6 +242,19 @@ void Game::sRender() {
             }
 
             DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
+        }
+
+        if (m_paused)
+        {
+            DrawRectangle(0, 0, m_windowc.W, m_windowc.H, {255, 255, 255, 50});
+                const char* pausedText = "PAUSED";
+                int fontSize = 50;
+
+                int textWidth = MeasureText(pausedText, fontSize);
+                int textX = (m_windowc.W - textWidth) / 2;
+                int textY = (m_windowc.H - fontSize) / 2;
+
+                DrawText(pausedText, textX, textY, fontSize, {255, 255, 255, 200});
         }
 
         EndDrawing();
