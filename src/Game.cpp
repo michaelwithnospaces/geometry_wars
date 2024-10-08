@@ -305,21 +305,26 @@ void Game::sCollision()
             }
         }
 
-        // enemy collission with wall
         for (auto e : m_entitiesManager.getEntities("enemy"))
         {
             if (e->cShape && e->cTransform && e->cCollision)
             {
+                // player collision with entity
                 float sumR = p->cShape->r + e->cShape->r;
                 float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
 
                 if (distanceBetween < sumR)
                 {
-                    e->destroy();
+                    m_score = 0;
+                    for (auto enemy : m_entitiesManager.getEntities("enemy"))
+                    {
+                        enemy->destroy();
+                    }
                     Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
                     p->cTransform->pos = center;
                 }
 
+                // enemy collision with wall
                 if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
                 {
                     e->cTransform->velocity.x = -e->cTransform->velocity.x;
