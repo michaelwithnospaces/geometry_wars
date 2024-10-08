@@ -354,26 +354,51 @@ void Game::spawnPlayer()
 
 void Game::spawnEnemy()
 {
-    auto enemy = m_entitiesManager.addEntity("enemy");
+    bool enemySpawned = false;
+    int attempts = 0;
+    int maxAttempts = 100;
 
-    int vertices = (rand() % m_enemyc.VMAX) + m_enemyc.VMIN;
-    int speed =  m_enemyc.SMIN + (static_cast<float>(rand()) / m_enemyc.SMAX) * (m_enemyc.SMAX - m_enemyc.SMIN);
+    while (!enemySpawned && attempts < maxAttempts)
+    {
+        Vec2f spawnLocation;
+        spawnLocation.x = (rand() % (m_windowc.W - 2 * m_enemyc.SR)) + m_enemyc.SR;
+        spawnLocation.y = (rand() % (m_windowc.H - 2 * m_enemyc.SR)) + m_enemyc.SR;
 
-    float rx = (rand() % (m_windowc.W - 2 * m_enemyc.SR)) + m_enemyc.SR;
-    float ry = (rand() % (m_windowc.H - 2 * m_enemyc.SR)) + m_enemyc.SR;
-    float angleRadians = static_cast<float>(rand()) / RAND_MAX * 2.0f * M_PI;
+        float distanceFromPlayer = spawnLocation.dist(m_player->cTransform->pos);
+        float safeSpawnDistance = m_enemyc.CR + m_player->cShape->r + 50.0f;
 
-    unsigned char rr = (rand() % 128) + 128;
-    unsigned char rg = (rand() % 128) + 128;
-    unsigned char rb = (rand() % 128) + 128;
+        if (distanceFromPlayer > safeSpawnDistance)
+        {
+            auto enemy = m_entitiesManager.addEntity("enemy");
 
-    Vec2f v;
-    v.x = speed * std::cos(angleRadians);
-    v.y = speed * std::sin(angleRadians);
+            int vertices = (rand() % m_enemyc.VMAX) + m_enemyc.VMIN;
+            int speed =  m_enemyc.SMIN + (static_cast<float>(rand()) / m_enemyc.SMAX) * (m_enemyc.SMAX - m_enemyc.SMIN);
 
-    enemy->cTransform =    std::make_shared<CTransform>(Vec2f(rx, ry), v, 0.0f);
-    enemy->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), vertices, m_enemyc.SR, Color({rr, rg, rb, 255}));
-    enemy->cCollision =    std::make_shared<CCollision>(m_enemyc.CR);
+            float angleRadians = static_cast<float>(rand()) / RAND_MAX * 2.0f * M_PI;
+
+            unsigned char rr = (rand() % 128) + 128;
+            unsigned char rg = (rand() % 128) + 128;
+            unsigned char rb = (rand() % 128) + 128;
+
+            Vec2f v;
+            v.x = speed * std::cos(angleRadians);
+            v.y = speed * std::sin(angleRadians);
+
+            enemy->cTransform =    std::make_shared<CTransform>(Vec2f(spawnLocation.x, spawnLocation.y), v, 0.0f);
+            enemy->cShape =        std::make_shared<CShape>(Vec2f(100.0f, 100.0f), vertices, m_enemyc.SR, Color({rr, rg, rb, 255}));
+            enemy->cCollision =    std::make_shared<CCollision>(m_enemyc.CR);
+
+            enemySpawned = true;
+        }
+        else
+        {
+            attempts++;
+        }
+    }
+    if (!enemySpawned)
+    {
+        std::cerr << "Error: Unable to find suitable spawn location for enemy." << std::endl;
+    }
 }
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
