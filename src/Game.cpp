@@ -309,19 +309,26 @@ void Game::sCollision()
         {
             if (e->cShape && e->cTransform && e->cCollision)
             {
-                // player collision with entity
-                float sumR = p->cShape->r + e->cShape->r;
-                float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
-
-                if (distanceBetween < sumR)
+                if (e->cShape && e->cTransform && e->cCollision)
                 {
-                    m_score = 0;
-                    for (auto enemy : m_entitiesManager.getEntities("enemy"))
+                    // player collision with small entity
+                    float sumR = p->cShape->r + e->cShape->r;
+                    float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
+
+                    if (distanceBetween < sumR)
                     {
-                        enemy->destroy();
+                        m_score = 0;
+                        for (auto enemy : m_entitiesManager.getEntities("enemy"))
+                        {
+                            enemy->destroy();
+                        }
+                        for (auto enemy : m_entitiesManager.getEntities("small enemy"))
+                        {
+                            enemy->destroy();
+                        }
+                        Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
+                        p->cTransform->pos = center;
                     }
-                    Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
-                    p->cTransform->pos = center;
                 }
 
                 // enemy collision with wall
@@ -340,6 +347,31 @@ void Game::sCollision()
                 if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
                 {
                     e->cTransform->velocity.y = -e->cTransform->velocity.y;
+                }
+            }
+        }
+
+        for (auto e : m_entitiesManager.getEntities("small enemy"))
+        {
+            if (e->cShape && e->cTransform && e->cCollision)
+            {
+                // player collision with small entity
+                float sumR = p->cShape->r + e->cShape->r;
+                float distanceBetween = p->cTransform->pos.dist(e->cTransform->pos);
+
+                if (distanceBetween < sumR)
+                {
+                    m_score = 0;
+                    for (auto enemy : m_entitiesManager.getEntities("small enemy"))
+                    {
+                        enemy->destroy();
+                    }
+                    for (auto enemy : m_entitiesManager.getEntities("enemy"))
+                    {
+                        enemy->destroy();
+                    }
+                    Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
+                    p->cTransform->pos = center;
                 }
             }
         }
@@ -370,7 +402,7 @@ void Game::sCollision()
         }
 
         // Bullet collision with entity
-        for (auto e : m_entitiesManager.getEntities("enemy"))
+        for (auto e : m_entitiesManager.getEntities())
         {
             if (e->cCollision)
             {
@@ -381,7 +413,10 @@ void Game::sCollision()
                 {
                     m_score += e->cScore->ptAward;
                     b->destroy();
-                    spawnSmallEnemies(e);
+                    if (e->tag() == "enemy")
+                    {
+                        spawnSmallEnemies(e);
+                    }
                     e->destroy();
                 }
             }
@@ -470,6 +505,7 @@ void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
         enemy->cShape =         std::make_shared<CShape>(entity->cShape->center, entity->cShape->sides, entity->cShape->r / 2.0f, smallEnemyColor);
         enemy->cCollision =     std::make_shared<CCollision>(entity->cShape->r / 2.0f);
         enemy->cLifespan =      std::make_shared<CLifespan>(m_enemyc.L);
+        enemy->cScore =         std::make_shared<CScore>(entity->cShape->sides * 100);
     }   
 }
 
