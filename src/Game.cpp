@@ -117,6 +117,11 @@ void Game::sMovement()
     {
         e->cTransform->pos += e->cTransform->velocity;
     }
+
+    for (auto s : m_entitiesManager.getEntities("small enemy"))
+    {
+        s->cTransform->pos += s->cTransform->velocity;
+    }
 }
 
 void Game::sUserInput()
@@ -188,6 +193,21 @@ void Game::sRender() {
         }
 
         for (auto e : m_entitiesManager.getEntities("enemy"))
+        {
+            if (e->cShape && e->cTransform)
+            {
+                e->cTransform->angle += 5.0f;
+                if (e->cTransform->angle > 360.0f)
+                {
+                    e->cTransform->angle -= 360.0f;
+                }
+
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
+            }
+            
+        }
+
+        for (auto e : m_entitiesManager.getEntities("small enemy"))
         {
             if (e->cShape && e->cTransform)
             {
@@ -315,7 +335,7 @@ void Game::sCollision()
         }
 
         // Bullet collision with entity
-        for (auto e : m_entitiesManager.getEntities())
+        for (auto e : m_entitiesManager.getEntities("enemy"))
         {
             if (e->cCollision)
             {
@@ -325,6 +345,7 @@ void Game::sCollision()
                 if (distBetweenR < sumR && e->tag() != b->tag() && e != m_player)
                 {
                     b->destroy();
+                    spawnSmallEnemies(e);
                     e->destroy();
                 }
             }
@@ -370,18 +391,23 @@ void Game::spawnEnemy()
 
 void Game::spawnSmallEnemies(std::shared_ptr<Entity> entity)
 {
-    float angle = 0.0f;
+    float angleStep = 360.0f / entity->cShape->sides;
+    float speed = 5.0f;
+
     for (int i = 0; i < entity->cShape->sides; i++)
     {
-        auto enemy = m_entitiesManager.addEntity("enemy");
+        auto enemy = m_entitiesManager.addEntity("small enemy");
+
+        float angleRadians = (angleStep * i) * (M_PI / 180.0f);
+        Vec2f v;
+        v.x = speed * std::cos(angleRadians);
+        v.y = speed * std::sin(angleRadians);
 
         Color smallEnemyColor = {entity->cShape->color.r, entity->cShape->color.g, entity->cShape->color.b, 150};
+        enemy->cTransform =     std::make_shared<CTransform>(entity->cTransform->pos, v, 0.0f);
         enemy->cShape =         std::make_shared<CShape>(entity->cShape->center, entity->cShape->sides, entity->cShape->r / 2.0f, smallEnemyColor);
-        enemy->cTransform =     std::make_shared<CTransform>(entity->cTransform->pos, Vec2f(0.0f, 0.0f), angle);
         enemy->cCollision =     std::make_shared<CCollision>(entity->cShape->r / 2.0f);
-
-        angle += 360.0f / entity->cShape->sides;
-    }
+    }   
 }
 
 void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
