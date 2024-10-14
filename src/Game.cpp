@@ -149,7 +149,6 @@ void Game::sMovement()
         for (auto g : m_entitiesManager.getEntities("gravity bomb"))
         {
             Vec2f specialPos = g->cTransform->pos;
-            float magnitude = specialPos.mag();
 
             for (auto enemy : m_entitiesManager.getEntities("enemy"))
             {
