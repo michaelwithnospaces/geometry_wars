@@ -16,6 +16,7 @@ void Game::run()
         
         if (!m_paused)
         {
+            sSpecialWeapon();
             sMovement();
             sCollision();
             sEnemySpawner();
@@ -98,6 +99,18 @@ void Game::setPaused(bool paused)
     }
 }
 
+void Game::setSpecialWeapon(bool specialActive)
+{
+    if (specialActive)
+    {
+        m_specialWeapon = true;
+    }
+    else
+    {
+        m_specialWeapon = false;
+    }
+}
+
 void Game::sMovement()
 {
     // Player movement
@@ -125,7 +138,31 @@ void Game::sMovement()
 
     for (auto e : m_entitiesManager.getEntities())
     {
-        if (e->cTransform && e->tag() != "player")
+        if (e->cTransform && e->tag() != "player" && e->tag() != "gravity bomb")
+        {
+            e->cTransform->pos += e->cTransform->velocity;  
+        }
+    }
+
+    if (m_specialActive && m_specialStop)
+    {
+        for (auto g : m_entitiesManager.getEntities("gravity bomb"))
+        {
+            Vec2f specialPos = g->cTransform->pos;
+            float magnitude = specialPos.mag();
+
+            for (auto enemy : m_entitiesManager.getEntities("enemy"))
+            {
+                Vec2f specialDirection = specialPos - enemy->cTransform->pos;
+                specialDirection.norm();
+                enemy->cTransform->pos += specialDirection * 5.0f;
+            }
+        }
+    }
+
+    for (auto e : m_entitiesManager.getEntities("gravity bomb"))
+    {
+        if (e->cTransform && !m_specialStop)
         {
             e->cTransform->pos += e->cTransform->velocity;  
         }
@@ -137,6 +174,10 @@ void Game::sUserInput()
     if (IsKeyPressed(KEY_P))
     {
         setPaused(!m_paused);
+    }
+    if (IsKeyPressed(KEY_SPACE) && !m_paused)
+    {
+        setSpecialWeapon(!m_specialWeapon);
     }
     if (IsKeyDown(KEY_W))
     {
@@ -178,15 +219,19 @@ void Game::sUserInput()
         // std::cout << "D Key Released" << std::endl;
         m_player->cInput->right = false;
     }
-    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+    if (!m_specialWeapon)
     {
-        m_player->cInput->shoot = true;
-        spawnBullet(m_player, {GetMousePosition().x, GetMousePosition().y});
-        // std::cout << "Mouse clicked: {" << GetMousePosition().x << ", " << GetMousePosition().y << "}" << std::endl;
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            spawnBullet(m_player, {GetMousePosition().x, GetMousePosition().y});
+        }
     }
-    if (IsMouseButtonUp(MOUSE_BUTTON_LEFT))
+    else
     {
-        m_player->cInput->shoot = false;
+        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+        {
+            spawnSpecialWeapon(m_player, {GetMousePosition().x, GetMousePosition().y});
+        }
     }
 }
 
@@ -194,10 +239,32 @@ void Game::sLifespan()
 {
     for (auto e : m_entitiesManager.getEntities())
     {
-        if (e->cLifespan)
+        if (e->cLifespan && e->tag() != "gravity bomb")
         {
             if (e->cLifespan->framesAlive < 0)
             {
+                e->destroy();
+            }
+            else
+            {
+                e->cLifespan->framesAlive--;
+            }
+        }
+    }
+
+    for (auto e : m_entitiesManager.getEntities("gravity bomb"))
+    {
+        if (e->cLifespan)
+        {
+            if ((m_currentFrame - m_lastSpecialSpawnTime) > 40)
+            {
+                m_specialStop = true;
+            }
+
+            if (e->cLifespan->framesAlive < 0)
+            {
+                m_specialActive = false;
+                m_specialStop = false;
                 e->destroy();
             }
             else
@@ -221,7 +288,7 @@ void Game::sRender() {
                 e->cShape->color.a = static_cast<unsigned char>(std::max(0.0f, (e->cLifespan->framesAlive / static_cast<float>(e->cLifespan->lifeFrames)) * 255));
             }
 
-            if (e->cShape && e->cTransform && e->tag() != "player" && e->tag() != "bullet")
+            if (e->cShape && e->cTransform && e->tag() != "player" && e->tag() != "bullet" && e->tag() != "gravity bomb")
             {
                 e->cTransform->angle += 5.0f;
                 if (e->cTransform->angle > 360.0f)
@@ -229,6 +296,14 @@ void Game::sRender() {
                     e->cTransform->angle -= 360.0f;
                 }
 
+                DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
+            }
+        }
+
+        for (auto e : m_entitiesManager.getEntities("gravity bomb"))
+        {
+            if (e->cShape && e->cTransform)
+            {
                 DrawPoly(toRaylibVector2(e->cTransform->pos), e->cShape->sides, e->cShape->r, e->cTransform->angle, e->cShape->color);
             }
         }
@@ -265,7 +340,16 @@ void Game::sRender() {
                 DrawText(pausedText, textX, textY, fontSize, {255, 255, 255, 200});
         }
 
-        DrawText(("SCORE: " + std::to_string(m_score)).c_str(), 10, 10, 25, {255, 255, 255, 200});
+        DrawText(("SCORE: " + std::to_string(m_score)).c_str(), 10, 10, 25, {255, 255, 255, 255});
+
+        if (m_specialWeapon)
+        {
+            DrawText("SPECIAL WEAPON ACTIVE", m_windowc.W - 210, 10, 15, {255, 255, 255, 255});
+            if (m_specialReady)
+            {
+                DrawText("READY", m_windowc.W - 210, 30, 15, {0, 255, 0, 255});
+            }
+        }
 
         EndDrawing();
 }
@@ -276,6 +360,15 @@ void Game::sEnemySpawner()
     {
         spawnEnemy();
         m_lastEnemySpawnTime = m_currentFrame;
+    }
+}
+
+void Game::sSpecialWeapon()
+{
+    int timeSinceSpecial = m_currentFrame - m_lastSpecialSpawnTime;
+    if (timeSinceSpecial > 200 && !m_specialActive)
+    {
+        m_specialReady = true;
     }
 }
 
@@ -330,24 +423,6 @@ void Game::sCollision()
                         p->cTransform->pos = center;
                     }
                 }
-
-                // enemy collision with wall
-                if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
-                {
-                    e->cTransform->velocity.x = -e->cTransform->velocity.x;
-                }
-                if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
-                {
-                    e->cTransform->velocity.x = -e->cTransform->velocity.x;
-                }
-                if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
-                {
-                    e->cTransform->velocity.y = -e->cTransform->velocity.y;
-                }
-                if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
-                {
-                    e->cTransform->velocity.y = -e->cTransform->velocity.y;
-                }
             }
         }
 
@@ -373,6 +448,31 @@ void Game::sCollision()
                     Vec2f center = {m_windowc.W / 2.0f, m_windowc.H / 2.0f};
                     p->cTransform->pos = center;
                 }
+            }
+        }
+    }
+
+    // Border collision
+    for (auto e : m_entitiesManager.getEntities())
+    {
+        // enemy collision with wall
+        if (e->tag() == "enemy" || e->tag() == "gravity bomb")
+        {
+            if ((e->cTransform->pos.x - e->cCollision->collissionR) < 0)
+            {
+                e->cTransform->velocity.x = -e->cTransform->velocity.x;
+            }
+            if ((e->cTransform->pos.x + e->cCollision->collissionR) > m_windowc.W)
+            {
+                e->cTransform->velocity.x = -e->cTransform->velocity.x;
+            }
+            if ((e->cTransform->pos.y - e->cCollision->collissionR) < 0 )
+            {
+                e->cTransform->velocity.y = -e->cTransform->velocity.y;
+            }
+            if ((e->cTransform->pos.y + e->cCollision->collissionR) > m_windowc.H)
+            {
+                e->cTransform->velocity.y = -e->cTransform->velocity.y;
             }
         }
     }
@@ -404,7 +504,7 @@ void Game::sCollision()
         // Bullet collision with entity
         for (auto e : m_entitiesManager.getEntities())
         {
-            if (e->cCollision)
+            if (e->cCollision && e->tag() != "gravity bomb")
             {
                 float sumR = e->cShape->r + b->cShape->r;
                 float distBetweenR = e->cTransform->pos.dist(b->cTransform->pos);
@@ -413,6 +513,29 @@ void Game::sCollision()
                 {
                     m_score += e->cScore->ptAward;
                     b->destroy();
+                    if (e->tag() == "enemy")
+                    {
+                        spawnSmallEnemies(e);
+                    }
+                    e->destroy();
+                }
+            }
+        }
+    }
+
+    // entity collision with gravity bomb
+    for (auto g : m_entitiesManager.getEntities("gravity bomb"))
+    {
+        for (auto e: m_entitiesManager.getEntities("enemy"))
+        {
+            if (e->cCollision)
+            {
+                float sumR = e->cShape->r + g->cShape->r;
+                float distBetweenR = e->cTransform->pos.dist(g->cTransform->pos);
+
+                if (distBetweenR < sumR && e->tag() != g->tag() && e != m_player)
+                {
+                    m_score += e->cScore->ptAward;
                     if (e->tag() == "enemy")
                     {
                         spawnSmallEnemies(e);
@@ -522,4 +645,24 @@ void Game::spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
     bullet->cInput =        std::make_shared<CInput>();
     bullet->cCollision =    std::make_shared<CCollision>(m_bulletc.CR);
     bullet->cLifespan =     std::make_shared<CLifespan>(m_bulletc.L);
+}
+
+void Game::spawnSpecialWeapon(std::shared_ptr<Entity> entity, const Vec2f& mousePos)
+{
+    if (m_specialReady)
+    {
+        m_lastSpecialSpawnTime = m_currentFrame;
+        m_specialActive = true;
+        m_specialReady = false;
+        auto gBomb = m_entitiesManager.addEntity("gravity bomb");
+
+        Vec2f velocity = mousePos - entity->cTransform->pos;
+        velocity.norm();
+        velocity *= 10.0f;
+
+        gBomb->cTransform =     std::make_shared<CTransform>(entity->cTransform->pos, velocity, 0.0f);
+        gBomb->cShape =         std::make_shared<CShape>(entity->cTransform->pos, 100, 30.0f, Color({0, 0, 0, 255}));
+        gBomb->cLifespan =      std::make_shared<CLifespan>(500);
+        gBomb->cCollision =     std::make_shared<CCollision>(30.0f);
+    }
 }

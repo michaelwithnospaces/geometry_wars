@@ -36,26 +36,33 @@ private:
     int             m_score = 0;
     int             m_currentFrame = 0;
     int             m_lastEnemySpawnTime = 0;
+    int             m_lastSpecialSpawnTime = 0;
     bool            m_paused = false;
     bool            m_running = true;
+    bool            m_specialWeapon = false;
+    bool            m_specialActive = false;
+    bool            m_specialStop = false;
+    bool            m_specialReady = true;
 
     std::shared_ptr<Entity> m_player;
 
     void init(const std::string& path); // initialize game state
     void setPaused(bool paused);        // pause game
+    void setSpecialWeapon(bool specialActive);
 
     void sMovement();                   // System: Entity position / movement update
     void sUserInput();                  // System: User input
     void sLifespan();                   // System: Entity lifespan
     void sRender();                     // System: Render and drawing
     void sEnemySpawner();               // System: Spawn enemies
+    void sSpecialWeapon();              // System: Special weapon
     void sCollision();                  // System: Collisions
 
     void spawnPlayer();
     void spawnEnemy();
     void spawnSmallEnemies(std::shared_ptr<Entity> entity);
     void spawnBullet(std::shared_ptr<Entity> entity, const Vec2f& mousePos);
-    void spawnSpecialWeapon(std::shared_ptr<Entity> entity);
+    void spawnSpecialWeapon(std::shared_ptr<Entity> entity, const Vec2f& mousePos);
 
 public:
     Game(const std::string& config);
